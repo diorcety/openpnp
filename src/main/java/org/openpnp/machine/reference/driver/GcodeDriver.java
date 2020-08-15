@@ -816,51 +816,31 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, boolean on) throws Exception {
-        String command = getCommand(actuator, CommandType.ACTUATE_BOOLEAN_COMMAND);
-        command = substituteVariable(command, "Id", actuator.getId());
-        command = substituteVariable(command, "Name", actuator.getName());
-        command = substituteVariable(command, "Index", actuator.getIndex());
-        command = substituteVariable(command, "BooleanValue", on);
-        command = substituteVariable(command, "True", on ? on : null);
-        command = substituteVariable(command, "False", on ? null : on);
-        sendGcode(command);
-
-        for (ReferenceDriver driver : subDrivers) {
-            driver.actuate(actuator, on);
+    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+        String command = null;
+        if (value instanceof Boolean) {
+            command = getCommand(actuator, CommandType.ACTUATE_BOOLEAN_COMMAND);
+        } else if(value instanceof Double) {
+            command = getCommand(actuator, CommandType.ACTUATE_DOUBLE_COMMAND);
+        } else if (value instanceof String) {
+            command = getCommand(actuator, CommandType.ACTUATE_STRING_COMMAND);
         }
-    }
 
-    @Override
-    public void actuate(ReferenceActuator actuator, double value) throws Exception {
-        String command = getCommand(actuator, CommandType.ACTUATE_DOUBLE_COMMAND);
-        command = substituteVariable(command, "Id", actuator.getId());
-        command = substituteVariable(command, "Name", actuator.getName());
-        command = substituteVariable(command, "Index", actuator.getIndex());
-        command = substituteVariable(command, "DoubleValue", value);
-        command = substituteVariable(command, "IntegerValue", (int) value);
-        sendGcode(command);
+        if (command != null) {
+            command = substituteVariable(command, "Id", actuator.getId());
+            command = substituteVariable(command, "Name", actuator.getName());
+            command = substituteVariable(command, "Index", actuator.getIndex());
+            command = substituteVariable(command, value);
+            sendGcode(command);
+        }
 
         for (ReferenceDriver driver : subDrivers) {
             driver.actuate(actuator, value);
         }
     }
-    
-    @Override
-    public void actuate(ReferenceActuator actuator, String value) throws Exception {
-        String command = getCommand(actuator, CommandType.ACTUATE_STRING_COMMAND);
-        command = substituteVariable(command, "Id", actuator.getId());
-        command = substituteVariable(command, "Name", actuator.getName());
-        command = substituteVariable(command, "Index", actuator.getIndex());
-        command = substituteVariable(command, "StringValue", value);
-        sendGcode(command);
 
-        for (ReferenceDriver driver : subDrivers) {
-            driver.actuate(actuator, value);
-        }
-    }
-    
-    private String actuatorRead(ReferenceActuator actuator, Double parameter) throws Exception {
+    @Override
+    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
         /**
          * The logic here is a little complicated. This is the only driver method that is
          * not fire and forget when it comes to sub-drivers. In this case, we need to know
@@ -891,10 +871,7 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
             command = substituteVariable(command, "Id", actuator.getId());
             command = substituteVariable(command, "Name", actuator.getName());
             command = substituteVariable(command, "Index", actuator.getIndex());
-            if (parameter != null) {
-                command = substituteVariable(command, "DoubleValue", parameter);
-                command = substituteVariable(command, "IntegerValue", (int) parameter.doubleValue());
-            }
+            command = substituteVariable(command, parameter);
 
             List<String> responses = sendGcode(command);
 
@@ -925,14 +902,9 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
              * If the command or regex is null we'll query the subdrivers. The first to respond
              * with a non-null value wins.
              */
-        	String val;
+        	Object val;
             for (ReferenceDriver driver : subDrivers) {
-                if (parameter == null) {
-                    val = driver.actuatorRead(actuator);
-                }
-                else {
-                    val = driver.actuatorRead(actuator, parameter);
-                }
+                val = driver.actuatorRead(actuator, parameter);
                 if (val != null) {
                     return val;
                 }
@@ -953,16 +925,6 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
                 return null;
             }
         }
-    }
-    
-    @Override
-    public String actuatorRead(ReferenceActuator actuator) throws Exception {
-        return actuatorRead(actuator, null); 
-    }
-
-    @Override
-    public String actuatorRead(ReferenceActuator actuator, double parameter) throws Exception {
-        return actuatorRead(actuator, (Double) parameter);
     }
 
     public synchronized void disconnect() {
@@ -1166,6 +1128,27 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
             machine.fireMachineHeadActivity(head);
         }
         return true;
+    }
+
+    static protected String substituteVariable(String command, Object variable) {
+        if (variable instanceof Boolean) {
+            boolean on = (boolean) variable;
+            command = substituteVariable(command, "BooleanValue", on);
+            command = substituteVariable(command, "True", on ? on : null);
+            command = substituteVariable(command, "False", on ? null : on);
+        } else if (variable instanceof Double) {
+            double value = (double) variable;
+            command = substituteVariable(command, "DoubleValue", value);
+            command = substituteVariable(command, "IntegerValue", (int) value);
+        } else if (variable instanceof Integer) {
+            int value = (int) variable;
+            command = substituteVariable(command, "DoubleValue", (double)value);
+            command = substituteVariable(command, "IntegerValue", value);
+        } else if (variable instanceof String) {
+            String value = (String) variable;
+            command = substituteVariable(command, "StringValue", value);
+        }
+        return command;
     }
 
     /**

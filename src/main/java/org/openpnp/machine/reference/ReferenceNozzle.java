@@ -849,7 +849,11 @@ public class ReferenceNozzle extends AbstractNozzle implements ReferenceHeadMoun
     }
 
     protected double readVacuumLevel() throws Exception {
-        return Double.parseDouble(getVacuumActuator().read());
+        Object value = getVacuumActuator().read();
+        if (!(value instanceof Number)) {
+            throw new NumberFormatException();
+        }
+        return ((Number)value).doubleValue();
     }
 
     protected boolean isPartOnGraphEnabled() {

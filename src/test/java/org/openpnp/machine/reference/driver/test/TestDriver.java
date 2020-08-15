@@ -65,12 +65,7 @@ public class TestDriver implements ReferenceDriver {
     }
     
     @Override
-    public void actuate(ReferenceActuator actuator, boolean on) throws Exception {
-        delegate.actuate(actuator, on);
-    }
-
-    @Override
-    public void actuate(ReferenceActuator actuator, double value) throws Exception {
+    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
         delegate.actuate(actuator, value);
     }
 
@@ -102,12 +97,7 @@ public class TestDriver implements ReferenceDriver {
         }
 
         @Override
-        public void actuate(ReferenceActuator actuator, boolean on) throws Exception {
-
-        }
-
-        @Override
-        public void actuate(ReferenceActuator actuator, double value) throws Exception {
+        public void actuate(ReferenceActuator actuator, Object value) throws Exception {
 
         }
 

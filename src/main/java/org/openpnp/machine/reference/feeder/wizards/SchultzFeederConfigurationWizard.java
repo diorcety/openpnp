@@ -21,6 +21,7 @@ package org.openpnp.machine.reference.feeder.wizards;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.util.Objects;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -311,8 +312,8 @@ public class SchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getIdActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                idText.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                idText.setText(Objects.toString(s, ""));
 			});
 		}
     };
@@ -384,8 +385,8 @@ public class SchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getFeedCountActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                feedCountValue.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                feedCountValue.setText(Objects.toString(s, ""));
 			});
 		}
     };
@@ -436,8 +437,8 @@ public class SchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getPitchActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                pitchValue.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                pitchValue.setText(Objects.toString(s, ""));
 			});
 		}
     };
@@ -484,8 +485,8 @@ public class SchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getStatusActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                statusText.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                statusText.setText(Objects.toString(s, ""));
 			});
 		}
     };

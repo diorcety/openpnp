@@ -72,53 +72,22 @@ public interface ReferenceDriver extends WizardConfigurable, PropertySheetHolder
     public Location getLocation(ReferenceHeadMountable hm);
 
     /**
-     * Actuates a machine defined object with a boolean state.
+     * Actuates a machine defined object.
      * 
      * @param actuator
-     * @param on
+     * @param value
      * @throws Exception
      */
-    public void actuate(ReferenceActuator actuator, boolean on) throws Exception;
+    public void actuate(ReferenceActuator actuator, Object value) throws Exception;
 
     /**
-     * Actuates a machine defined object with a double value.
-     * 
-     * @param actuator
-     * @param on
-     * @throws Exception
-     */
-    public void actuate(ReferenceActuator actuator, double value) throws Exception;
-
-    /**
-     * Actuates a machine defined object with a String value.
-     * 
-     * @param actuator
-     * @param on
-     * @throws Exception
-     */
-    public default void actuate(ReferenceActuator actuator, String value) throws Exception {
-    }
-
-    /**
-     * Read a String value from the given Actuator.
+     * Read a value from the given Actuator.
      * 
      * @param actuator
      * @return
      * @throws Exception
      */
-    public default String actuatorRead(ReferenceActuator actuator) throws Exception {
-        return null;
-    }
-
-    /**
-     * Read a given String value from the given Actuator.
-     * 
-     * @param actuator
-     * @param parameter
-     * @return 
-     * @throws Exception
-     */
-    public default String actuatorRead(ReferenceActuator actuator, double parameter) throws Exception {
+    public default Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
         return null;
     }
 

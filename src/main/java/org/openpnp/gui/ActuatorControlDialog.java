@@ -3,6 +3,7 @@ package org.openpnp.gui;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Objects;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -105,8 +106,8 @@ public class ActuatorControlDialog extends JDialog {
         readBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 UiUtils.submitUiMachineTask(() -> {
-                    String s = actuator.read();
-                    readTf.setText(s == null ? "" : s);
+                    Object s = actuator.read();
+                    readTf.setText(Objects.toString(s, ""));
                 });
             }
         });
@@ -116,8 +117,8 @@ public class ActuatorControlDialog extends JDialog {
         readWithDoubleBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 UiUtils.submitUiMachineTask(() -> {
-                    String s = actuator.read(Double.parseDouble(doubleTf.getText()));
-                    readTf.setText(s == null ? "" : s);
+                    Object s = actuator.read(Double.parseDouble(doubleTf.getText()));
+                    readTf.setText(Objects.toString(s, ""));
                 });
             }
         });

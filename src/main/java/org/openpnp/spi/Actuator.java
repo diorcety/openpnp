@@ -27,30 +27,13 @@ package org.openpnp.spi;
 public interface Actuator
         extends HeadMountable, WizardConfigurable, PropertySheetHolder {
     /**
-     * Turns the Actuator on or off.
-     * 
-     * @param on
-     * @throws Exception
-     */
-    public void actuate(boolean on) throws Exception;
-
-    /**
-     * Provides the actuator with a double value to which it can respond in an implementation
+     * Provides the actuator with a value to which it can respond in an implementation
      * dependent manner.
      * 
      * @param value
      * @throws Exception
      */
-    public void actuate(double value) throws Exception;
-    
-    /**
-     * Provides the actuator with a String value to which it can respond in an implementation
-     * dependent manner.
-     * 
-     * @param value
-     * @throws Exception
-     */
-    public void actuate(String value) throws Exception;
+    public void actuate(Object value) throws Exception;
     
     /**
      * Read a value from the actuator. The value will be returned exactly as provided by the
@@ -58,7 +41,10 @@ public interface Actuator
      * @return The value read.
      * @throws Exception if there was an error reading the actuator.
      */
-    public String read() throws Exception;
 
-    public String read(double value) throws Exception;
+    public Object read(Object value) throws Exception;
+
+    public default Object read() throws Exception {
+        return read(null);
+    }
 }

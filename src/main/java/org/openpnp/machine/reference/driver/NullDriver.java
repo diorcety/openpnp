@@ -21,6 +21,7 @@ package org.openpnp.machine.reference.driver;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Objects;
 
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -221,7 +222,7 @@ public class NullDriver implements ReferenceDriver {
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, double value) throws Exception {
+    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
         Logger.debug("actuate({}, {})", actuator, value);
         checkEnabled();
         if (feedRateMmPerMinute > 0) {
@@ -230,26 +231,8 @@ public class NullDriver implements ReferenceDriver {
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, boolean on) throws Exception {
-        Logger.debug("actuate({}, {})", actuator, on);
-        checkEnabled();
-        if (feedRateMmPerMinute > 0) {
-            Thread.sleep(500);
-        }
-    }
-    
-    @Override
-    public void actuate(ReferenceActuator actuator, String value) throws Exception {
-        Logger.debug("actuate({}, {})", actuator, value);
-        checkEnabled();
-        if (feedRateMmPerMinute > 0) {
-            Thread.sleep(500);
-        }
-    }
-    
-    @Override
-    public String actuatorRead(ReferenceActuator actuator) throws Exception {
-        return Math.random() + "";
+    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+        return Objects.toString(parameter, "") + Math.random();
     }
 
     @Override
