@@ -22,18 +22,16 @@ public class ScriptActuator extends ReferenceActuator {
         File script = new File(scriptsDirectory, scriptName);
         scripting.execute(script, globals);
     }
-    
-    @Override
-    public void actuate(boolean on) throws Exception {
-        Map<String, Object> globals = new HashMap<>();
-        globals.put("actuateBoolean", on);
-        this.execute(globals);
-    }
 
     @Override
-    public void actuate(double value) throws Exception {
+    public void actuate(Object value) throws Exception {
         Map<String, Object> globals = new HashMap<>();
-        globals.put("actuateDouble", value);
+        globals.put("actuateValue", value);
+        if (value instanceof Boolean) {
+            globals.put("actuateBoolean", value);
+        } else if (value instanceof Double) {
+            globals.put("actuateDouble", value);
+        }
         this.execute(globals);
     }
 

@@ -71,7 +71,7 @@ public abstract class AbstractActuator extends AbstractModelObject implements Ac
     }
 
     @Override
-    public String read() throws Exception {
+    public Object read(Object parameter) throws Exception {
         return null;
     }
 }

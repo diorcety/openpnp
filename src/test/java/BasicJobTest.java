@@ -178,7 +178,7 @@ public class BasicJobTest {
         }
 
         @Override
-        public void actuate(ReferenceActuator actuator, boolean on) throws Exception {
+        public void actuate(ReferenceActuator actuator, Object value) throws Exception {
             if (expectedOps.isEmpty()) {
                 throw new Exception("Unexpected Actuate");
             }
@@ -190,11 +190,6 @@ public class BasicJobTest {
                 }
 
             }
-            super.actuate(actuator, on);
-        }
-
-        @Override
-        public void actuate(ReferenceActuator actuator, double value) throws Exception {
             super.actuate(actuator, value);
         }
 

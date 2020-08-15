@@ -44,43 +44,44 @@ public class HttpActuator extends ReferenceActuator implements ReferenceHeadMoun
     public HttpActuator() {}
 
     @Override
-    public void actuate(boolean on) throws Exception {
-        Logger.debug("{}.actuate({})", getName(), on);
-        // getDriver().actuate(this, on);
-        URL obj = null;
-        if (this.on && !on) {
-            // fire OFF
-            obj = new URL(this.offUrl);
+    public void actuate(Object value) throws Exception {
+        Logger.debug("{}.actuate({})", getName(), value);
+
+        if (value instanceof Boolean) {
+            boolean on = (boolean) value;
+            URL obj = null;
+            if (this.on && !on) {
+                // fire OFF
+                obj = new URL(this.offUrl);
+            } else if (!this.on && on) {
+                // fire ON
+                obj = new URL(this.onUrl);
+            } else {
+                return;
+            }
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+            int responseCode = con.getResponseCode();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            Logger.debug("{}.HTTPActuate turning: {} )", getName(), on);
+            Logger.debug("{}.HTTPActuate requesting: {} )", getName(), obj.toString());
+            Logger.debug("{}.HTTPActuate responseCode: {} )", getName(), responseCode);
+            Logger.debug("{}.HTTPActuate response: {} )", getName(), response);
+            this.on = on;
+
+            getMachine().fireMachineHeadActivity(head);
         }
-        else if (!this.on && on) {
-            // fire ON
-            obj = new URL(this.onUrl);
-        }
-        else {
-            return;
-        }
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-        int responseCode = con.getResponseCode();
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-
-        Logger.debug("{}.HTTPActuate turning: {} )", getName(), on);
-        Logger.debug("{}.HTTPActuate requesting: {} )", getName(), obj.toString());
-        Logger.debug("{}.HTTPActuate responseCode: {} )", getName(), responseCode);
-        Logger.debug("{}.HTTPActuate response: {} )", getName(), response);
-        this.on = on;
-
-        getMachine().fireMachineHeadActivity(head);
     }
 
     @Override

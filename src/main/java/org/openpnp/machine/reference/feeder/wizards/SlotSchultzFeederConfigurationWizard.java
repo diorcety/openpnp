@@ -69,6 +69,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import java.awt.FlowLayout;
+import java.util.Objects;
 
 public class SlotSchultzFeederConfigurationWizard
         extends AbstractConfigurationWizard {
@@ -739,8 +740,8 @@ public class SlotSchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getIdActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                idText.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                idText.setText(Objects.toString(s, ""));
 			});
 		}
     };
@@ -815,8 +816,8 @@ public class SlotSchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getFeedCountActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                feedCountValue.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                feedCountValue.setText(Objects.toString(s, ""));
 			});
 		}
     };
@@ -867,8 +868,8 @@ public class SlotSchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getPitchActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                pitchValue.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                pitchValue.setText(Objects.toString(s, ""));
 			});
 		}
     };
@@ -915,8 +916,8 @@ public class SlotSchultzFeederConfigurationWizard
 					throw new Exception(
 							"Failed, unable to find an actuator named " + feeder.getStatusActuatorName());
 				}
-                String s = actuator.read(feeder.getActuatorValue());
-                statusText.setText(s == null ? "" : s);
+                Object s = actuator.read(feeder.getActuatorValue());
+                statusText.setText(Objects.toString(s, ""));
 			});
 		}
     };
