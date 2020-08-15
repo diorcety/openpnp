@@ -187,6 +187,7 @@ public class MachineSetupPanel extends JPanel implements WizardContainer {
                             for (Action action : actions) {
                                 toolBar.add(action);
                             }
+                            break;
                         }
                     }
 
