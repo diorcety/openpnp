@@ -1,16 +1,19 @@
 package org.openpnp.gui;
 
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.Objects;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
+import org.jdesktop.beansbinding.Converter;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
+import org.openpnp.gui.support.BooleanConverter;
+import org.openpnp.gui.support.DoubleConverter;
+import org.openpnp.gui.support.IntegerConverter;
+import org.openpnp.gui.support.LongConverter;
 import org.openpnp.spi.Actuator;
 import org.openpnp.util.UiUtils;
 
@@ -20,8 +23,56 @@ import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class ActuatorControlDialog extends JDialog {
-    private JTextField doubleTf;
+    private static final LabeledStringConverter<?> converters[] = new LabeledStringConverter[] {
+            new LabeledStringConverter<Object>("None", new Converter() {
+                @Override
+                public Object convertForward(Object o) {
+                    return null;
+                }
+
+                @Override
+                public Object convertReverse(Object o) {
+                    return null;
+                }
+            }),
+            new LabeledStringConverter<Boolean>("Boolean", new BooleanConverter()),
+            new LabeledStringConverter<Integer>("Integer", new IntegerConverter()),
+            new LabeledStringConverter<Long>("Long", new LongConverter()),
+            new LabeledStringConverter<Double>("Double", new DoubleConverter()),
+            new LabeledStringConverter<String>("String", new Converter() {
+                @Override
+                public Object convertForward(Object o) {
+                    return o;
+                }
+
+                @Override
+                public Object convertReverse(Object o) {
+                    return o;
+                }
+            }),
+    };
+
+    private JTextField valueTf;
     private JTextField readTf;
+
+    private static class LabeledStringConverter<T> {
+        private final String label;
+        private final Converter<T, String> converter;
+
+        public LabeledStringConverter(String label, Converter<T, String> converter) {
+            this.label = label;
+            this.converter = converter;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public Converter<T, String> getConverter() {
+            return converter;
+        }
+    }
+
     public ActuatorControlDialog(Actuator actuator) {
         super(MainFrame.get(), actuator.getHead() == null ? actuator.getName()
                 : actuator.getHead().getName() + ":" + actuator.getName(), true);
@@ -43,53 +94,44 @@ public class ActuatorControlDialog extends JDialog {
                 FormSpecs.DEFAULT_ROWSPEC,
                 FormSpecs.RELATED_GAP_ROWSPEC,
                 FormSpecs.DEFAULT_ROWSPEC,
-                FormSpecs.RELATED_GAP_ROWSPEC,
-                FormSpecs.DEFAULT_ROWSPEC,
-                FormSpecs.RELATED_GAP_ROWSPEC,
-                FormSpecs.DEFAULT_ROWSPEC,}));
+                FormSpecs.RELATED_GAP_ROWSPEC,}));
         
         setModalityType(JDialog.ModalityType.MODELESS);
-        
-        JLabel lblBoolean = new JLabel("Set Boolean Value");
-        getContentPane().add(lblBoolean, "2, 2");
-        
+
         JPanel panel = new JPanel();
         FlowLayout flowLayout = (FlowLayout) panel.getLayout();
         flowLayout.setAlignment(FlowLayout.LEFT);
         getContentPane().add(panel, "4, 2, 3, 1");
-        
-        JButton onBtn = new JButton("On");
-        onBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                UiUtils.submitUiMachineTask(() -> {
-                    actuator.actuate(true);
-                });
+
+        JLabel lblValue = new JLabel("Value type");
+        getContentPane().add(lblValue, "2, 2");
+
+        JComboBox<LabeledStringConverter<?>> comboBoxType = new JComboBox<LabeledStringConverter<?>>();
+        comboBoxType.setModel(new ListComboBoxModel<LabeledStringConverter<?>>(Arrays.asList(converters)));
+        comboBoxType.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                ((JLabel) component).setText(((LabeledStringConverter) value).getLabel());
+                return component;
             }
         });
-        panel.add(onBtn);
+        getContentPane().add(comboBoxType, "4, 2");
         
-        JButton offBtn = new JButton("Off");
-        offBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                UiUtils.submitUiMachineTask(() -> {
-                    actuator.actuate(false);
-                });
-            }
-        });
-        panel.add(offBtn);
+        JLabel lblSet = new JLabel("Set Value");
+        getContentPane().add(lblSet, "2, 4, right, default");
         
-        JLabel lblDouble = new JLabel("Set Double Value");
-        getContentPane().add(lblDouble, "2, 4, right, default");
-        
-        doubleTf = new JTextField();
-        getContentPane().add(doubleTf, "4, 4");
-        doubleTf.setColumns(10);
+        valueTf = new JTextField();
+        getContentPane().add(valueTf, "4, 4");
+        valueTf.setColumns(10);
         
         JButton setBtn = new JButton("Set");
         setBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 UiUtils.submitUiMachineTask(() -> {
-                    actuator.actuate(Double.parseDouble(doubleTf.getText()));
+                    LabeledStringConverter<?> converter = (LabeledStringConverter<?>) comboBoxType.getSelectedItem();
+                    Object value = converter.getConverter().convertReverse(valueTf.getText());
+                    actuator.actuate(value);
                 });
             }
         });
@@ -106,23 +148,14 @@ public class ActuatorControlDialog extends JDialog {
         readBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 UiUtils.submitUiMachineTask(() -> {
-                    Object s = actuator.read();
+                    LabeledStringConverter<?> converter = (LabeledStringConverter<?>) comboBoxType.getSelectedItem();
+                    Object value = converter.getConverter().convertReverse(valueTf.getText());
+                    Object s = actuator.read(value);
                     readTf.setText(Objects.toString(s, ""));
                 });
             }
         });
         getContentPane().add(readBtn, "6, 6");
-
-        JButton readWithDoubleBtn = new JButton("Read With Double");
-        readWithDoubleBtn.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                UiUtils.submitUiMachineTask(() -> {
-                    Object s = actuator.read(Double.parseDouble(doubleTf.getText()));
-                    readTf.setText(Objects.toString(s, ""));
-                });
-            }
-        });
-        getContentPane().add(readWithDoubleBtn, "6, 10");
         
         JButton closeBtn = new JButton("Close");
         closeBtn.addActionListener(new ActionListener() {
@@ -130,6 +163,6 @@ public class ActuatorControlDialog extends JDialog {
                 setVisible(false);
             }
         });
-        getContentPane().add(closeBtn, "6, 12");
+        getContentPane().add(closeBtn, "6, 8");
     }
 }
