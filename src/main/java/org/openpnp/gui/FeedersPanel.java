@@ -232,8 +232,10 @@ public class FeedersPanel extends JPanel implements WizardContainer {
                         priorFeederId = feeder.getId();
                         PropertySheet[] propertySheets = feeder.getPropertySheets();
                         for (PropertySheet ps : propertySheets) {
-                            AbstractConfigurationWizard wizard = (AbstractConfigurationWizard) ps.getPropertySheetPanel();
-                            wizard.setWizardContainer(FeedersPanel.this);
+                            JPanel wizard = ps.getPropertySheetPanel();
+                            if (wizard instanceof Wizard) {
+                                ((Wizard) wizard).setWizardContainer(FeedersPanel.this);
+                            }
                             configurationPanel.addTab(ps.getPropertySheetTitle(), wizard);
                         }
                     }
