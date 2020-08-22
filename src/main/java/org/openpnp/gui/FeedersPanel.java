@@ -20,6 +20,7 @@
 package org.openpnp.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -263,7 +264,10 @@ public class FeedersPanel extends JPanel implements WizardContainer {
         boolean feederConfigurationIsDirty = false;
         int i = 0;
         while (!feederConfigurationIsDirty && (i<configurationPanel.getComponentCount())) {
-            feederConfigurationIsDirty = ((AbstractConfigurationWizard) configurationPanel.getComponent(i)).isDirty();
+            Component component = configurationPanel.getComponent(i);
+            if (component instanceof AbstractConfigurationWizard) {
+                feederConfigurationIsDirty = ((AbstractConfigurationWizard) component).isDirty();
+            }
             i++;
         }
         if (feederConfigurationIsDirty && (priorFeeder != null)) {
@@ -278,10 +282,13 @@ public class FeedersPanel extends JPanel implements WizardContainer {
 				case JOptionPane.YES_OPTION:
 				    int j = 0;
 				    while ((j<configurationPanel.getComponentCount())) {
-				    	AbstractConfigurationWizard wizard = ((AbstractConfigurationWizard) configurationPanel.getComponent(j));
-				        if (wizard.isDirty()) {
-							wizard.apply();
-				        }
+                        Component component = configurationPanel.getComponent(i);
+                        if (component instanceof AbstractConfigurationWizard) {
+                            AbstractConfigurationWizard wizard = (AbstractConfigurationWizard) component;
+                            if (wizard.isDirty()) {
+                                wizard.apply();
+                            }
+                        }
 				        j++;
 				    }
 				    return false;
