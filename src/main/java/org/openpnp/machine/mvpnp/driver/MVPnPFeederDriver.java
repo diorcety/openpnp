@@ -18,7 +18,6 @@ import org.openpnp.model.Location;
 import org.openpnp.spi.Movable;
 import org.pmw.tinylog.Logger;
 import org.simpleframework.xml.Attribute;
-import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -313,7 +312,7 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
                     "Are you sure you want to delete the selected feeder driver?",
                     "Delete Feeder Driver?", JOptionPane.YES_NO_OPTION);
             if (ret == JOptionPane.YES_OPTION) {
-                parent.removeFeederDrivers(MVPnPFeederDriver.this);
+                parent.removeFeederDriver(MVPnPFeederDriver.this);
             }
         }
     };

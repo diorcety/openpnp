@@ -3,6 +3,7 @@ package org.openpnp.machine.mvpnp;
 import org.openpnp.gui.support.Icons;
 import org.openpnp.gui.support.Wizard;
 import org.openpnp.machine.mvpnp.driver.MVPnPFeederDriver;
+import org.openpnp.machine.mvpnp.driver.MVPnPMotorDriver;
 import org.openpnp.machine.reference.ReferenceActuator;
 import org.openpnp.machine.reference.ReferenceDriver;
 import org.openpnp.machine.reference.ReferenceHead;
@@ -34,11 +35,17 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     @ElementList(required = false)
     protected List<MVPnPFeederDriver> feederDrivers = new ArrayList<>();
 
+    @ElementList(required = false)
+    protected List<MVPnPMotorDriver> motorDrivers = new ArrayList<>();
+
     public MVPnPDriver() {
     }
 
     @Commit
     public void commit() {
+        for (MVPnPMotorDriver driver : motorDrivers) {
+            driver.setParent(this);
+        }
         for (MVPnPFeederDriver driver : feederDrivers) {
             driver.setParent(this);
         }
@@ -46,21 +53,46 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
 
     @Override
     public void home(ReferenceHead head) throws Exception {
-
+        for (ReferenceDriver driver : motorDrivers) {
+            driver.home(head);
+        }
+        for (ReferenceDriver driver : feederDrivers) {
+            driver.home(head);
+        }
     }
 
     @Override
     public void moveTo(ReferenceHeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
-
+        for (ReferenceDriver driver : motorDrivers) {
+            driver.moveTo(hm, location,speed, options);
+        }
+        for (ReferenceDriver driver : feederDrivers) {
+            driver.moveTo(hm, location,speed, options);
+        }
     }
 
     @Override
     public Location getLocation(ReferenceHeadMountable hm) {
-        return new Location(LengthUnit.Millimeters, 0, 0, 0, 0);
+        for (ReferenceDriver driver : motorDrivers) {
+            Location location = driver.getLocation(hm);
+            if (location != null) {
+                return location;
+            }
+        }
+        for (ReferenceDriver driver : feederDrivers) {
+            Location location = driver.getLocation(hm);
+            if (location != null) {
+                return location;
+            }
+        }
+        return new Location(LengthUnit.Millimeters, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
     @Override
     public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+        for (ReferenceDriver driver : motorDrivers) {
+            driver.actuate(actuator, value);
+        }
         for (ReferenceDriver driver : feederDrivers) {
             driver.actuate(actuator, value);
         }
@@ -68,6 +100,12 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
 
     @Override
     public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+        for (ReferenceDriver driver : motorDrivers) {
+            Object s = driver.actuatorRead(actuator, parameter);
+            if (s != null) {
+                return s;
+            }
+        }
         for (ReferenceDriver driver : feederDrivers) {
             Object s = driver.actuatorRead(actuator, parameter);
             if (s != null) {
@@ -79,6 +117,9 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
 
     @Override
     public void setEnabled(boolean enabled) throws Exception {
+        for (ReferenceDriver driver : motorDrivers) {
+            driver.setEnabled(enabled);
+        }
         for (ReferenceDriver driver : feederDrivers) {
             driver.setEnabled(enabled);
         }
@@ -86,6 +127,9 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
 
     @Override
     public void close() throws IOException {
+        for (ReferenceDriver driver : motorDrivers) {
+            driver.close();
+        }
         for (ReferenceDriver driver : feederDrivers) {
             driver.close();
         }
@@ -108,6 +152,12 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     @Override
     public PropertySheetHolder[] getChildPropertySheetHolders() {
         ArrayList<PropertySheetHolder> children = new ArrayList<>();
+        children.add(new SimplePropertySheetHolder("Motor Drivers", motorDrivers) {
+            @Override
+            public Action[] getPropertySheetHolderActions() {
+                return new Action[] {addMotorDriverAction};
+            }
+        });
         children.add(new SimplePropertySheetHolder("Feeder Drivers", feederDrivers) {
             @Override
             public Action[] getPropertySheetHolderActions() {
@@ -127,6 +177,19 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
         return null;
     }
 
+    public Action addMotorDriverAction = new AbstractAction() {
+        {
+            putValue(SMALL_ICON, Icons.add);
+            putValue(NAME, "Add Motor Driver...");
+            putValue(SHORT_DESCRIPTION, "Add a new motor driver.");
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent arg0) {
+            addMotorDriver(new MVPnPMotorDriver());
+        }
+    };
+
     public Action addFeederDriverAction = new AbstractAction() {
         {
             putValue(SMALL_ICON, Icons.add);
@@ -136,7 +199,7 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
 
         @Override
         public void actionPerformed(ActionEvent arg0) {
-            addFeederDrivers(new MVPnPFeederDriver());
+            addFeederDriver(new MVPnPFeederDriver());
         }
     };
 
@@ -150,14 +213,39 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
         return null;
     }
 
-    public void addFeederDrivers(MVPnPFeederDriver feederDriver) {
+    public void addMotorDriver(MVPnPMotorDriver motorDriver) {
+        motorDriver.setParent(this);
+        motorDrivers.add(motorDriver);
+        fireIndexedPropertyChange("feederDrivers", motorDrivers.size() - 1, null, motorDriver);
+
+    }
+
+    public void removeMotorDriver(MVPnPMotorDriver motorDriver) {
+        motorDrivers.remove(motorDriver);
+        fireIndexedPropertyChange("feederDrivers", motorDrivers.size(), motorDriver, null);
+    }
+
+    public List<MVPnPMotorDriver> getMotorDrivers() {
+        return motorDrivers;
+    }
+
+    public MVPnPMotorDriver getMotorDriverByName(String name) {
+        for (MVPnPMotorDriver motorDriver : motorDrivers) {
+            if(motorDriver.getName().equals(name)) {
+                return motorDriver;
+            }
+        }
+        return null;
+    }
+
+    public void addFeederDriver(MVPnPFeederDriver feederDriver) {
         feederDriver.setParent(this);
         feederDrivers.add(feederDriver);
         fireIndexedPropertyChange("feederDrivers", feederDrivers.size() - 1, null, feederDriver);
 
     }
 
-    public void removeFeederDrivers(MVPnPFeederDriver feederDriver) {
+    public void removeFeederDriver(MVPnPFeederDriver feederDriver) {
         feederDrivers.remove(feederDriver);
         fireIndexedPropertyChange("feederDrivers", feederDrivers.size(), feederDriver, null);
     }

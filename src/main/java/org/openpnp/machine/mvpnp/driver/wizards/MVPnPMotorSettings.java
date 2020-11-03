@@ -5,19 +5,19 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 import org.openpnp.gui.support.AbstractConfigurationWizard;
-import org.openpnp.machine.mvpnp.driver.MVPnPFeederDriver;
+import org.openpnp.machine.mvpnp.driver.MVPnPMotorDriver;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
-public class MVPnPFeederSettings extends AbstractConfigurationWizard {
+public class MVPnPMotorSettings extends AbstractConfigurationWizard {
 
-    private final MVPnPFeederDriver feederDriver;
+    private final MVPnPMotorDriver motorDriver;
     private JLabel lblName;
     private JTextField nameTf;
 
-    public MVPnPFeederSettings(MVPnPFeederDriver feederDriver) {
-        this.feederDriver = feederDriver;
+    public MVPnPMotorSettings(MVPnPMotorDriver motorDriver) {
+        this.motorDriver = motorDriver;
         JPanel panel = new JPanel();
         panel.setBorder(new TitledBorder(null, "Properties", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         contentPanel.add(panel);
@@ -42,6 +42,6 @@ public class MVPnPFeederSettings extends AbstractConfigurationWizard {
 
     @Override
     public void createBindings() {
-        addWrappedBinding(feederDriver, "name", nameTf, "text");
+        addWrappedBinding(motorDriver, "name", nameTf, "text");
     }
 }

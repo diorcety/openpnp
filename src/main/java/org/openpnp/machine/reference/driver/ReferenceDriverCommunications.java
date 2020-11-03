@@ -103,6 +103,18 @@ public abstract class ReferenceDriverCommunications {
         }
     }
 
+    public byte[] readBytes(int count) throws TimeoutException, IOException {
+        byte[] data = new byte[count];
+        int index = 0;
+        while (index < count) {
+            int ch = read();
+            if (ch == -1) {
+                return null;
+            }
+        }
+        return data;
+    }
+
     public void write(int d) throws IOException {
         byte[] b = new byte[] { (byte) d };
         writeBytes(b);
