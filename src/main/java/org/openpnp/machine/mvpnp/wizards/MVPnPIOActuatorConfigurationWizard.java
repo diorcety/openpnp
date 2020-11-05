@@ -17,7 +17,7 @@
  * For more information about OpenPnP visit http://openpnp.org
  */
 
-package org.openpnp.machine.mvpnp.driver.wizards;
+package org.openpnp.machine.mvpnp.wizards;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -30,7 +30,7 @@ import org.openpnp.gui.support.AbstractConfigurationWizard;
 import org.openpnp.gui.support.IntegerConverter;
 import org.openpnp.gui.support.LengthConverter;
 import org.openpnp.gui.support.MutableLocationProxy;
-import org.openpnp.machine.mvpnp.driver.MVPnPIOActuator;
+import org.openpnp.machine.mvpnp.MVPnPIOActuator;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;

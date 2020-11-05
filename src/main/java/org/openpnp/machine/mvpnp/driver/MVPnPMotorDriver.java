@@ -4,20 +4,20 @@ import org.openpnp.gui.MainFrame;
 import org.openpnp.gui.support.Icons;
 import org.openpnp.gui.support.PropertySheetWizardAdapter;
 import org.openpnp.machine.mvpnp.MVPnPDriver;
+import org.openpnp.machine.mvpnp.MVPnPIOActuator;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLCommand;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLReply;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLRequest;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLType;
 import org.openpnp.machine.mvpnp.driver.wizards.MVPnPMotorCalibrationWizard;
 import org.openpnp.machine.mvpnp.driver.wizards.MVPnPMotorSettings;
-import org.openpnp.machine.mvpnp.feeders.wizards.MVPnPFeederCalibrationWizard;
-import org.openpnp.machine.reference.ReferenceActuator;
-import org.openpnp.machine.reference.ReferenceHead;
 import org.openpnp.machine.reference.ReferenceHeadMountable;
 import org.openpnp.machine.reference.driver.AbstractReferenceDriver;
 import org.openpnp.model.Configuration;
 import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
+import org.openpnp.spi.Actuator;
+import org.openpnp.spi.Head;
 import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable;
 import org.openpnp.spi.Nozzle;
@@ -145,14 +145,16 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
     }
 
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
 
     }
 
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
+    public void moveTo(HeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
         location = location.convertToUnits(units);
-        location = location.subtract(hm.getHeadOffsets());
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.subtract(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
 
         Axis xAxis = getAxis(hm, Axis.Type.X);
         Axis yAxis = getAxis(hm, Axis.Type.Y);
@@ -166,7 +168,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
     }
 
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
+    public Location getLocation(HeadMountable hm) {
         // according main driver
         Axis xAxis = getAxis(hm, Axis.Type.X);
         Axis yAxis = getAxis(hm, Axis.Type.Y);
@@ -177,13 +179,15 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
                 new Location(units, xAxis == null ? 0 : xAxis.getTransformedCoordinate(hm),
                         yAxis == null ? 0 : yAxis.getTransformedCoordinate(hm),
                         zAxis == null ? 0 : zAxis.getTransformedCoordinate(hm),
-                        rotationAxis == null ? 0 : rotationAxis.getTransformedCoordinate(hm))
-                        .add(hm.getHeadOffsets());
+                        rotationAxis == null ? 0 : rotationAxis.getTransformedCoordinate(hm));
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.add(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
         return location;
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+    public void actuate(Actuator actuator, Object value) throws Exception {
         if (!(actuator instanceof MVPnPIOActuator)) {
             return;
         }
@@ -193,7 +197,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
     }
 
     @Override
-    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+    public Object actuatorRead(Actuator actuator, Object parameter) throws Exception {
         if (!(actuator instanceof MVPnPIOActuator)) {
             return null;
         }
@@ -214,7 +218,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
         }
     }
 
-    private void move(ReferenceHeadMountable hm, Axis axis, double position, double speed) throws Exception {
+    private void move(HeadMountable hm, Axis axis, double position, double speed) throws Exception {
         if (Double.isNaN(position)) {
             return; // No move requested
         }

@@ -1,7 +1,7 @@
-package org.openpnp.machine.mvpnp.driver;
+package org.openpnp.machine.mvpnp;
 
 import org.openpnp.gui.support.Wizard;
-import org.openpnp.machine.mvpnp.driver.wizards.MVPnPIOActuatorConfigurationWizard;
+import org.openpnp.machine.mvpnp.wizards.MVPnPIOActuatorConfigurationWizard;
 import org.openpnp.machine.reference.ReferenceActuator;
 import org.simpleframework.xml.Attribute;
 

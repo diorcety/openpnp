@@ -9,14 +9,11 @@ import org.openpnp.gui.MainFrame;
 import org.openpnp.gui.support.IntegerConverter;
 import org.openpnp.gui.support.Wizard;
 import org.openpnp.gui.support.WizardContainer;
-import org.openpnp.machine.mvpnp.driver.MVPnPFeederDriver;
-import org.openpnp.machine.mvpnp.driver.MVPnPIOActuator;
 import org.openpnp.machine.mvpnp.driver.MVPnPMotorDriver;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLCommand;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLReply;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLRequest;
 import org.openpnp.machine.mvpnp.driver.tmcl.TMCLType;
-import org.openpnp.machine.mvpnp.feeders.MVPnPAutoFeeder;
 import org.openpnp.util.UiUtils;
 
 import javax.swing.*;

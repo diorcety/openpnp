@@ -9,12 +9,13 @@ import org.openpnp.gui.support.PropertySheetWizardAdapter;
 import org.openpnp.machine.mvpnp.MVPnPDriver;
 import org.openpnp.machine.mvpnp.driver.wizards.MVPnPFeederSettings;
 import org.openpnp.machine.reference.ReferenceActuator;
-import org.openpnp.machine.reference.ReferenceHead;
-import org.openpnp.machine.reference.ReferenceHeadMountable;
 import org.openpnp.machine.reference.ReferenceMachine;
 import org.openpnp.machine.reference.driver.AbstractReferenceDriver;
 import org.openpnp.model.Configuration;
 import org.openpnp.model.Location;
+import org.openpnp.spi.Actuator;
+import org.openpnp.spi.Head;
+import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable;
 import org.pmw.tinylog.Logger;
 import org.simpleframework.xml.Attribute;
@@ -38,9 +39,9 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
     private MVPnPDriver parent = null;
     private char currentFeeder = 0;
     private boolean connected;
-    private List<ReferenceActuator> actuatorList = new LinkedList<ReferenceActuator>();
+    private List<Actuator> actuatorList = new LinkedList<Actuator>();
 
-    public enum Actuator {
+    public enum MVPnPActuator {
         ACT_MVPNP_FEEDER_SELECT("Select", '\0', new Converter<String, String>() {
             @Override
             public String convertForward(String o) {
@@ -94,7 +95,7 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
         private final char cmd;
         private final Converter<?, String> converter;
 
-        Actuator(String name, char cmd, Converter<?, String> converter) {
+        MVPnPActuator(String name, char cmd, Converter<?, String> converter) {
             this.name = name;
             this.cmd = cmd;
             this.converter = converter;
@@ -126,11 +127,11 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
         // Make sure required objects exist
         ReferenceMachine machine = ((ReferenceMachine) Configuration.get().getMachine());
 
-        for (ReferenceActuator actuator : actuatorList) {
+        for (Actuator actuator : actuatorList) {
             machine.removeActuator(actuator);
         }
 
-        for (Actuator value : Actuator.values()) {
+        for (MVPnPActuator value : MVPnPActuator.values()) {
             ReferenceActuator a = new ReferenceActuator();
             a.setName(getActuatorFullname(value.getName()));
             actuatorList.add(a);
@@ -142,9 +143,9 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
         }
     }
 
-    public ReferenceActuator getActuatorByName(String name) {
+    public Actuator getActuatorByName(String name) {
         String fullname = getActuatorFullname(name);
-        for (ReferenceActuator referenceActuator : actuatorList) {
+        for (Actuator referenceActuator : actuatorList) {
             if (referenceActuator.getName().equals(fullname)) {
                 return referenceActuator;
             }
@@ -167,26 +168,26 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
     }
 
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
 
     }
 
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
+    public void moveTo(HeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
 
     }
 
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
+    public Location getLocation(HeadMountable hm) {
         return null;
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
-        for (Actuator act : Actuator.values()) {
+    public void actuate(Actuator actuator, Object value) throws Exception {
+        for (MVPnPActuator act : MVPnPActuator.values()) {
             if (getActuatorFullname(act.getName()).equals(actuator.getName())) {
                 String strValue = ((Converter<Object, String>)act.getConverter()).convertForward(value);
-                if (act == Actuator.ACT_MVPNP_FEEDER_SELECT) {
+                if (act == MVPnPActuator.ACT_MVPNP_FEEDER_SELECT) {
                     if (strValue.length() != 1) {
                         throw new IllegalArgumentException("Invalid feeder name");
                     }
@@ -203,10 +204,10 @@ public class MVPnPFeederDriver extends AbstractReferenceDriver {
     }
 
     @Override
-    public Object actuatorRead(ReferenceActuator actuator, Object value) throws Exception {
-        for (Actuator act : Actuator.values()) {
+    public Object actuatorRead(Actuator actuator, Object value) throws Exception {
+        for (MVPnPActuator act : MVPnPActuator.values()) {
             if (getActuatorFullname(act.getName()).equals(actuator.getName())) {
-                if (act == Actuator.ACT_MVPNP_FEEDER_SELECT) {
+                if (act == MVPnPActuator.ACT_MVPNP_FEEDER_SELECT) {
                     return "" + currentFeeder;
                 } else {
                     String strValue = readValue(act.getCmd());

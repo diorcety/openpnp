@@ -83,8 +83,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    currentValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_POSITION).read()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    currentValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_POSITION).read()));
                 });
             }
         });
@@ -94,8 +94,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_POSITION).actuate(integerConverter.convertReverse(currentValue.getText()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_POSITION).actuate(integerConverter.convertReverse(currentValue.getText()));
                 });
             }
         });
@@ -112,10 +112,10 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    int position = (Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_POSITION).read();
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    int position = (Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_POSITION).read();
                     position += integerConverter.convertReverse(incrementalValue.getText());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_POSITION).actuate(position);
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_POSITION).actuate(position);
                 });
             }
         });
@@ -125,10 +125,10 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    int position = (Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_POSITION).read();
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    int position = (Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_POSITION).read();
                     position -= integerConverter.convertReverse(incrementalValue.getText());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_POSITION).actuate(position);
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_POSITION).actuate(position);
                 });
             }
         });
@@ -145,8 +145,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    originValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_ORIGIN).read()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    originValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_ORIGIN).read()));
                 });
             }
         });
@@ -156,8 +156,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_ORIGIN).actuate(integerConverter.convertReverse(originValue.getText()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_ORIGIN).actuate(integerConverter.convertReverse(originValue.getText()));
                 });
             }
         });
@@ -174,8 +174,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    halfValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_HALF).read()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    halfValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_HALF).read()));
                 });
             }
         });
@@ -185,8 +185,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_HALF).actuate(integerConverter.convertReverse(halfValue.getText()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_HALF).actuate(integerConverter.convertReverse(halfValue.getText()));
                 });
             }
         });
@@ -203,8 +203,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    fullValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_FULL).read()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    fullValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_FULL).read()));
                 });
             }
         });
@@ -214,8 +214,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_FULL).actuate(integerConverter.convertReverse(fullValue.getText()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_FULL).actuate(integerConverter.convertReverse(fullValue.getText()));
                 });
             }
         });
@@ -233,8 +233,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    lengthValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_LENGTH).read()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    lengthValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_LENGTH).read()));
                 });
             }
         });
@@ -244,8 +244,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_LENGTH).actuate(integerConverter.convertReverse(lengthValue.getText()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_LENGTH).actuate(integerConverter.convertReverse(lengthValue.getText()));
                 });
             }
         });
@@ -262,8 +262,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    timeValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_TIME).read()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    timeValue.setText(integerConverter.convertForward((Integer) MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_TIME).read()));
                 });
             }
         });
@@ -273,8 +273,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_TIME).actuate(integerConverter.convertReverse(timeValue.getText()));
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_TIME).actuate(integerConverter.convertReverse(timeValue.getText()));
                 });
             }
         });
@@ -306,8 +306,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_ENABLE).actuate(true);
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_ENABLE).actuate(true);
                 });
             }
         });
@@ -317,8 +317,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
             @Override
             public void actionPerformed(ActionEvent e) {
                 UiUtils.messageBoxOnException(() -> {
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_ENABLE).actuate(false);
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                    MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_ENABLE).actuate(false);
                 });
             }
         });
@@ -342,8 +342,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
                         "Rename Feeder?", JOptionPane.YES_NO_OPTION);
                 if (ret == JOptionPane.YES_OPTION) {
                     UiUtils.messageBoxOnException(() -> {
-                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_ENABLE).actuate(false);
+                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_ENABLE).actuate(false);
                     });
                 }
             }
@@ -358,8 +358,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
                         "Save Feeder Settings?", JOptionPane.YES_NO_OPTION);
                 if (ret == JOptionPane.YES_OPTION) {
                     UiUtils.messageBoxOnException(() -> {
-                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SAVE).actuate(true);
+                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SAVE).actuate(true);
                     });
                 }
             }
@@ -374,8 +374,8 @@ public class MVPnPFeederCalibrationWizard extends JPanel implements Wizard {
                         "Reset Feeder Settings?", JOptionPane.YES_NO_OPTION);
                 if (ret == JOptionPane.YES_OPTION) {
                     UiUtils.messageBoxOnException(() -> {
-                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
-                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_RESET).actuate(true);
+                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(feeder.getLetter());
+                        MVPnPAutoFeeder.getActuator(feeder.getFeederDriver(), MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_RESET).actuate(true);
                     });
                 }
             }

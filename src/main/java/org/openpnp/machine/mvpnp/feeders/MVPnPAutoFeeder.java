@@ -12,6 +12,7 @@ import org.openpnp.machine.reference.ReferenceFeeder;
 import org.openpnp.machine.reference.ReferenceMachine;
 import org.openpnp.model.Configuration;
 import org.openpnp.model.Location;
+import org.openpnp.spi.Actuator;
 import org.openpnp.spi.Machine;
 import org.openpnp.spi.Nozzle;
 import org.openpnp.spi.PropertySheetHolder;
@@ -86,12 +87,12 @@ public class MVPnPAutoFeeder extends ReferenceFeeder {
         if (isMoveBeforeFeed()) {
             MovableUtils.moveToLocationAtSafeZ(nozzle, getPickLocation().derive(null, null, Double.NaN, null));
         }
-        getActuator(feederDriver, MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_SELECT).actuate(letter);
-        getActuator(feederDriver, MVPnPFeederDriver.Actuator.ACT_MVPNP_FEEDER_ADVANCE).actuate(advance);
+        getActuator(feederDriver, MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_SELECT).actuate(letter);
+        getActuator(feederDriver, MVPnPFeederDriver.MVPnPActuator.ACT_MVPNP_FEEDER_ADVANCE).actuate(advance);
     }
 
-    public static ReferenceActuator getActuator(MVPnPFeederDriver feederDriver, MVPnPFeederDriver.Actuator feederActuator) throws Exception {
-        ReferenceActuator actuator = feederDriver.getActuatorByName(feederActuator.getName());
+    public static Actuator getActuator(MVPnPFeederDriver feederDriver, MVPnPFeederDriver.MVPnPActuator feederActuator) throws Exception {
+        Actuator actuator = feederDriver.getActuatorByName(feederActuator.getName());
         if (actuator == null) {
             throw new Exception("Actuator \"" + feederActuator.getName() + "\" not found on feeder driver \"" + feederDriver.getName() + "\"");
         }

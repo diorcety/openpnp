@@ -11,6 +11,9 @@ import org.openpnp.machine.reference.ReferenceHeadMountable;
 import org.openpnp.model.AbstractModelObject;
 import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
+import org.openpnp.spi.Actuator;
+import org.openpnp.spi.Head;
+import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable;
 import org.openpnp.spi.PropertySheetHolder;
 import org.openpnp.spi.base.SimplePropertySheetHolder;
@@ -52,7 +55,7 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     }
 
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
         for (ReferenceDriver driver : motorDrivers) {
             driver.home(head);
         }
@@ -62,7 +65,7 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     }
 
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
+    public void moveTo(HeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
         for (ReferenceDriver driver : motorDrivers) {
             driver.moveTo(hm, location,speed, options);
         }
@@ -72,7 +75,7 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     }
 
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
+    public Location getLocation(HeadMountable hm) {
         for (ReferenceDriver driver : motorDrivers) {
             Location location = driver.getLocation(hm);
             if (location != null) {
@@ -89,7 +92,7 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+    public void actuate(Actuator actuator, Object value) throws Exception {
         for (ReferenceDriver driver : motorDrivers) {
             driver.actuate(actuator, value);
         }
@@ -99,7 +102,7 @@ public class MVPnPDriver extends AbstractModelObject implements ReferenceDriver,
     }
 
     @Override
-    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+    public Object actuatorRead(Actuator actuator, Object parameter) throws Exception {
         for (ReferenceDriver driver : motorDrivers) {
             Object s = driver.actuatorRead(actuator, parameter);
             if (s != null) {
