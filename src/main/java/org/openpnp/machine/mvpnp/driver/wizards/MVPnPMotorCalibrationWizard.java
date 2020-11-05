@@ -7,13 +7,11 @@ import com.jgoodies.forms.layout.RowSpec;
 import org.jdesktop.swingx.combobox.EnumComboBoxModel;
 import org.openpnp.gui.MainFrame;
 import org.openpnp.gui.support.IntegerConverter;
+import org.openpnp.gui.support.MessageBoxes;
 import org.openpnp.gui.support.Wizard;
 import org.openpnp.gui.support.WizardContainer;
 import org.openpnp.machine.mvpnp.driver.MVPnPMotorDriver;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLCommand;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLReply;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLRequest;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLType;
+import org.openpnp.machine.mvpnp.driver.tmcl.*;
 import org.openpnp.util.UiUtils;
 
 import javax.swing.*;
@@ -75,6 +73,21 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
             JSpinner moduleSp = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
             globalParameters.add(moduleSp, "4, 4, fill, default");
 
+            JButton btnID = new JButton(new AbstractAction("Get ID") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    UiUtils.messageBoxOnException(() -> {
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.GFV.getByte(), (byte)1, (byte)0, 0);
+                        TMCLReply tmclReply = driver.sendCommand(tmclRequest);
+                        int value = tmclReply.getValue();
+                        String message = String.format("ID: %02x%02x" + "\nVersion: %02x%02x", value >> 24 & 0xff, value >> 16 & 0xff, value >> 8 & 0xff, value >> 0 & 0xff);
+                        MessageBoxes.infoBox("TMCL Board ID", message);
+                    });
+                }
+            });
+            globalParameters.add(btnID, "6, 4");
+
             JLabel lbMotor = new JLabel("Motor");
             globalParameters.add(lbMotor, "2, 6, right, default");
 
@@ -84,22 +97,22 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
             JLabel lblType = new JLabel("Type");
             globalParameters.add(lblType, "2, 8, right, default");
 
-            JComboBox<TMCLType.AP> typeCb = new JComboBox<TMCLType.AP>();
+            JComboBox<TMCLType.GP> typeCb = new JComboBox<TMCLType.GP>();
             typeCb.setModel(new EnumComboBoxModel<TMCLType.GP>(TMCLType.GP.class));
             globalParameters.add(typeCb, "4, 8, right, default");
 
             JButton btnLoadEEPROM = new JButton(new AbstractAction("Load from EEPROM") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    TMCLType.AP type = (TMCLType.AP) typeCb.getSelectedItem();
+                    TMCLType.GP type = (TMCLType.GP) typeCb.getSelectedItem();
                     int ret = JOptionPane.showConfirmDialog(MainFrame.get(),
                             "Are you sure you want to load " + type.name() + " from EEPROM?",
                             "Save Feeder Settings?", JOptionPane.YES_NO_OPTION);
                     if (ret == JOptionPane.YES_OPTION) {
                         UiUtils.messageBoxOnException(() -> {
-                            byte module = (byte) moduleSp.getValue();
+                            byte module = ((Integer) moduleSp.getValue()).byteValue();
                             byte typeByte = type.getByte();
-                            byte motor = (byte) motorSp.getValue();
+                            byte motor = ((Integer) motorSp.getValue()).byteValue();
                             TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.RSGP.getByte(), typeByte, motor, 0);
                             driver.sendCommand(tmclRequest);
                         });
@@ -111,15 +124,15 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
             JButton btnSaveEEPROM = new JButton(new AbstractAction("Save to EEPROM") {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    TMCLType.AP type = (TMCLType.AP) typeCb.getSelectedItem();
+                    TMCLType.GP type = (TMCLType.GP) typeCb.getSelectedItem();
                     int ret = JOptionPane.showConfirmDialog(MainFrame.get(),
                             "Are you sure you want to save " + type.name() + " in EEPROM?",
                             "Save Feeder Settings?", JOptionPane.YES_NO_OPTION);
                     if (ret == JOptionPane.YES_OPTION) {
                         UiUtils.messageBoxOnException(() -> {
-                            byte module = (byte) moduleSp.getValue();
+                            byte module = ((Integer) moduleSp.getValue()).byteValue();
                             byte typeByte = type.getByte();
-                            byte motor = (byte) motorSp.getValue();
+                            byte motor = ((Integer) motorSp.getValue()).byteValue();
                             TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.STGP.getByte(), typeByte, motor, 0);
                             driver.sendCommand(tmclRequest);
                         });
@@ -139,10 +152,10 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     UiUtils.messageBoxOnException(() -> {
-                        byte module = (byte) moduleSp.getValue();
-                        byte type = ((TMCLType.AP) typeCb.getSelectedItem()).getByte();
-                        byte motor = (byte) motorSp.getValue();
-                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.SGP.getByte(), type, motor, 0);
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        byte type = ((TMCLType.GP) typeCb.getSelectedItem()).getByte();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.GGP.getByte(), type, motor, 0);
                         TMCLReply tmclReply = driver.sendCommand(tmclRequest);
                         valueTf.setText(integerConverter.convertForward(tmclReply.getValue()));
                     });
@@ -154,9 +167,9 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     UiUtils.messageBoxOnException(() -> {
-                        byte module = (byte) moduleSp.getValue();
-                        byte type = ((TMCLType.AP) typeCb.getSelectedItem()).getByte();
-                        byte motor = (byte) motorSp.getValue();
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        byte type = ((TMCLType.GP) typeCb.getSelectedItem()).getByte();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
                         TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.SGP.getByte(), type, motor, integerConverter.convertReverse(valueTf.getText()));
                         driver.sendCommand(tmclRequest);
                     });
@@ -222,9 +235,9 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                             "Save Feeder Settings?", JOptionPane.YES_NO_OPTION);
                     if (ret == JOptionPane.YES_OPTION) {
                         UiUtils.messageBoxOnException(() -> {
-                            byte module = (byte) moduleSp.getValue();
+                            byte module = ((Integer) moduleSp.getValue()).byteValue();
                             byte typeByte = type.getByte();
-                            byte motor = (byte) motorSp.getValue();
+                            byte motor = ((Integer) motorSp.getValue()).byteValue();
                             TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.RSAP.getByte(), typeByte, motor, 0);
                             driver.sendCommand(tmclRequest);
                         });
@@ -242,9 +255,9 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                             "Save Feeder Settings?", JOptionPane.YES_NO_OPTION);
                     if (ret == JOptionPane.YES_OPTION) {
                         UiUtils.messageBoxOnException(() -> {
-                            byte module = (byte) moduleSp.getValue();
+                            byte module = ((Integer) moduleSp.getValue()).byteValue();
                             byte typeByte = type.getByte();
-                            byte motor = (byte) motorSp.getValue();
+                            byte motor = ((Integer) motorSp.getValue()).byteValue();
                             TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.STAP.getByte(), typeByte, motor, 0);
                             driver.sendCommand(tmclRequest);
                         });
@@ -264,10 +277,10 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     UiUtils.messageBoxOnException(() -> {
-                        byte module = (byte) moduleSp.getValue();
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
                         byte type = ((TMCLType.AP) typeCb.getSelectedItem()).getByte();
-                        byte motor = (byte) motorSp.getValue();
-                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.SAP.getByte(), type, motor, 0);
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.GAP.getByte(), type, motor, 0);
                         TMCLReply tmclReply = driver.sendCommand(tmclRequest);
                         valueTf.setText(integerConverter.convertForward(tmclReply.getValue()));
                     });
@@ -279,9 +292,9 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     UiUtils.messageBoxOnException(() -> {
-                        byte module = (byte) moduleSp.getValue();
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
                         byte type = ((TMCLType.AP) typeCb.getSelectedItem()).getByte();
-                        byte motor = (byte) motorSp.getValue();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
                         TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.SAP.getByte(), type, motor, integerConverter.convertReverse(valueTf.getText()));
                         driver.sendCommand(tmclRequest);
                     });

@@ -98,7 +98,7 @@ public abstract class ReferenceDriverCommunications {
                 }
             }
             else {
-                line.append((char) ch);
+                line.append((char) (ch & 0xff));
             }
         }
     }
@@ -108,9 +108,7 @@ public abstract class ReferenceDriverCommunications {
         int index = 0;
         while (index < count) {
             int ch = read();
-            if (ch == -1) {
-                return null;
-            }
+            data[index++] = (byte)(ch & 0xff);
         }
         return data;
     }

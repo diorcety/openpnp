@@ -1,14 +1,12 @@
 package org.openpnp.machine.mvpnp.driver;
 
+import org.apache.commons.codec.binary.Hex;
 import org.openpnp.gui.MainFrame;
 import org.openpnp.gui.support.Icons;
 import org.openpnp.gui.support.PropertySheetWizardAdapter;
 import org.openpnp.machine.mvpnp.MVPnPDriver;
 import org.openpnp.machine.mvpnp.MVPnPIOActuator;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLCommand;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLReply;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLRequest;
-import org.openpnp.machine.mvpnp.driver.tmcl.TMCLType;
+import org.openpnp.machine.mvpnp.driver.tmcl.*;
 import org.openpnp.machine.mvpnp.driver.wizards.MVPnPMotorCalibrationWizard;
 import org.openpnp.machine.mvpnp.driver.wizards.MVPnPMotorSettings;
 import org.openpnp.machine.reference.ReferenceHeadMountable;
@@ -53,8 +51,6 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
     private boolean connected;
 
     private MVPnPDriver parent = null;
-
-    private Map<Byte, Byte> moduleStatus = new HashMap<Byte, Byte>();
 
     public void setParent(MVPnPDriver driver) {
         parent = driver;
@@ -254,14 +250,19 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
 
     public TMCLReply sendCommand(TMCLRequest tmclRequest) throws Exception {
         Logger.debug("sendCommand({})...", tmclRequest);
-        getCommunications().writeBytes(tmclRequest.getData());
+        byte[] data = tmclRequest.getData();
+        Logger.debug("Write -> {}", Hex.encodeHexString(data));
+        getCommunications().writeBytes(data);
         byte[] bytes = getCommunications().readBytes(TMCL_FRAME_SIZE);
         if (bytes == null) {
             throw new IOException("Can't get TMCL reply");
         }
+        Logger.debug("Read <- {}", Hex.encodeHexString(bytes));
         TMCLReply tmclReply = new TMCLReply(bytes);
         Logger.debug("sendCommand({}) => {}", tmclRequest, tmclReply);
-        moduleStatus.put(tmclRequest.getModuleAddress(), tmclReply.getStatus());
+        if (tmclReply.getStatus() < TMCLStatus.NO_ERROR.getByte()) {
+            throw new IllegalStateException("Invalid reply status: " + (int)tmclReply.getStatus());
+        }
         return tmclReply;
     }
 

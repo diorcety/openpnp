@@ -35,7 +35,8 @@ public enum TMCLCommand {
     CLE(36),
     VECT(37),
     RETI(38),
-    ACO(39);
+    ACO(39),
+    GFV(136);
 
     private final byte id;
 
