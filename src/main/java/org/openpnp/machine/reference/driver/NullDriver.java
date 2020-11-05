@@ -28,15 +28,15 @@ import javax.swing.Icon;
 
 import org.openpnp.gui.support.PropertySheetWizardAdapter;
 import org.openpnp.gui.support.Wizard;
-import org.openpnp.machine.reference.ReferenceActuator;
 import org.openpnp.machine.reference.ReferenceDriver;
-import org.openpnp.machine.reference.ReferenceHead;
 import org.openpnp.machine.reference.ReferenceHeadMountable;
 import org.openpnp.machine.reference.ReferenceMachine;
 import org.openpnp.model.Configuration;
 import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
+import org.openpnp.spi.Actuator;
 import org.openpnp.spi.Head;
+import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable.MoveToOption;
 import org.openpnp.spi.PropertySheetHolder;
 import org.pmw.tinylog.Logger;
@@ -78,7 +78,7 @@ public class NullDriver implements ReferenceDriver {
     }
 
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
         Logger.debug("home()");
         checkEnabled();
         setHeadLocation(head, getHeadLocation(head).derive(0.0, 0.0, 0.0, 0.0));
@@ -90,8 +90,12 @@ public class NullDriver implements ReferenceDriver {
      * the object to make the coordinates correct for that object.
      */
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
-        return getHeadLocation(hm.getHead()).add(hm.getHeadOffsets());
+    public Location getLocation(HeadMountable hm) {
+        Location headLocation = getHeadLocation(hm.getHead());
+        if(hm instanceof ReferenceHeadMountable) {
+            headLocation.add(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
+        return headLocation;
     }
 
     /**
@@ -100,14 +104,16 @@ public class NullDriver implements ReferenceDriver {
      * considerations when writing your own driver.
      */
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption... options)
+    public void moveTo(HeadMountable hm, Location location, double speed, MoveToOption... options)
             throws Exception {
         Logger.debug("moveTo({}, {}, {})", hm, location, speed);
         checkEnabled();
 
         // Subtract the offsets from the incoming Location. This converts the
         // offset coordinates to driver / absolute coordinates.
-        location = location.subtract(hm.getHeadOffsets());
+        if(hm instanceof ReferenceHeadMountable) {
+            location = location.subtract(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
 
         // Convert the Location to millimeters, since that's the unit that
         // this driver works in natively.
@@ -143,7 +149,7 @@ public class NullDriver implements ReferenceDriver {
      * @param speed
      * @throws Exception
      */
-    protected void simulateMovement(ReferenceHeadMountable hm, Location location, Location hl,
+    protected void simulateMovement(HeadMountable hm, Location location, Location hl,
             double speed) throws Exception {
         double x = hl.getX();
         double y = hl.getY();
@@ -222,7 +228,7 @@ public class NullDriver implements ReferenceDriver {
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+    public void actuate(Actuator actuator, Object value) throws Exception {
         Logger.debug("actuate({}, {})", actuator, value);
         checkEnabled();
         if (feedRateMmPerMinute > 0) {
@@ -231,7 +237,7 @@ public class NullDriver implements ReferenceDriver {
     }
 
     @Override
-    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+    public Object actuatorRead(Actuator actuator, Object parameter) throws Exception {
         return Objects.toString(parameter, "") + Math.random();
     }
 

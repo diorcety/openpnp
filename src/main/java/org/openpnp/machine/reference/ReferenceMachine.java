@@ -31,6 +31,8 @@ import org.openpnp.ConfigurationListener;
 import org.openpnp.gui.support.PropertySheetWizardAdapter;
 import org.openpnp.gui.support.Wizard;
 import org.openpnp.machine.marek.MarekNozzle;
+import org.openpnp.machine.mvpnp.MVPnPDriver;
+import org.openpnp.machine.neoden4.NeoDen4Driver;
 import org.openpnp.machine.neoden4.Neoden4Camera;
 import org.openpnp.machine.rapidplacer.RapidFeeder;
 import org.openpnp.machine.reference.camera.ImageCamera;
@@ -40,6 +42,7 @@ import org.openpnp.machine.reference.camera.OpenPnpCaptureCamera;
 import org.openpnp.machine.reference.camera.SimulatedUpCamera;
 import org.openpnp.machine.reference.camera.SwitcherCamera;
 import org.openpnp.machine.reference.camera.Webcams;
+import org.openpnp.machine.reference.driver.GcodeDriver;
 import org.openpnp.machine.reference.driver.NullDriver;
 import org.openpnp.machine.reference.feeder.AdvancedLoosePartFeeder;
 import org.openpnp.machine.reference.feeder.BlindsFeeder;
@@ -67,6 +70,7 @@ import org.openpnp.machine.reference.wizards.ReferenceMachineConfigurationWizard
 import org.openpnp.model.Configuration;
 import org.openpnp.spi.Actuator;
 import org.openpnp.spi.Camera;
+import org.openpnp.spi.Driver;
 import org.openpnp.spi.Feeder;
 import org.openpnp.spi.FiducialLocator;
 import org.openpnp.spi.Head;
@@ -211,6 +215,15 @@ public class ReferenceMachine extends AbstractMachine {
 
     public void registerFeederClass(Class<? extends Feeder> cls) {
         registeredFeederClasses.add(cls);
+    }
+
+    @Override
+    public List<Class<? extends Driver>> getCompatibleDriverClasses() {
+        List<Class<? extends Driver>> l = new ArrayList<>();
+        l.add(NullDriver.class);
+        l.add(GcodeDriver.class);
+        l.add(NeoDen4Driver.class);
+        return l;
     }
 
     @Override

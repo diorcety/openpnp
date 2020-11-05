@@ -137,6 +137,8 @@ public interface Machine extends WizardConfigurable, PropertySheetHolder, Closea
 
     public void removeListener(MachineListener listener);
 
+    public List<Class<? extends Driver>> getCompatibleDriverClasses();
+
     public List<Class<? extends Feeder>> getCompatibleFeederClasses();
 
     public List<Class<? extends Camera>> getCompatibleCameraClasses();

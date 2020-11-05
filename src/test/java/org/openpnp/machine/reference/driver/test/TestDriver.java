@@ -12,6 +12,9 @@ import org.openpnp.machine.reference.ReferenceHead;
 import org.openpnp.machine.reference.ReferenceHeadMountable;
 import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
+import org.openpnp.spi.Actuator;
+import org.openpnp.spi.Head;
+import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable.MoveToOption;
 import org.openpnp.spi.PropertySheetHolder;
 import org.simpleframework.xml.Attribute;
@@ -29,17 +32,19 @@ public class TestDriver implements ReferenceDriver {
     }
 
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
         location = new Location(LengthUnit.Millimeters, 0, 0, 0, 0);
         delegate.home(head);
     }
 
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption...options)
+    public void moveTo(HeadMountable hm, Location location, double speed, MoveToOption...options)
             throws Exception {
         // Subtract the offsets from the incoming Location. This converts the
         // offset coordinates to driver / absolute coordinates.
-        location = location.subtract(hm.getHeadOffsets());
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.subtract(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
 
         // Convert the Location to millimeters, since that's the unit that
         // this driver works in natively.
@@ -60,12 +65,16 @@ public class TestDriver implements ReferenceDriver {
     }
 
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
-        return location.add(hm.getHeadOffsets());
+    public Location getLocation(HeadMountable hm) {
+        Location retLocation = location;
+        if (hm instanceof ReferenceHeadMountable) {
+            retLocation = location.add(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
+        return retLocation;
     }
     
     @Override
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+    public void actuate(Actuator actuator, Object value) throws Exception {
         delegate.actuate(actuator, value);
     }
 
@@ -81,23 +90,23 @@ public class TestDriver implements ReferenceDriver {
         }
 
         @Override
-        public void home(ReferenceHead head) throws Exception {
+        public void home(Head head) throws Exception {
 
         }
 
         @Override
-        public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption...options)
+        public void moveTo(HeadMountable hm, Location location, double speed, MoveToOption...options)
                 throws Exception {
 
         }
 
         @Override
-        public Location getLocation(ReferenceHeadMountable hm) {
+        public Location getLocation(HeadMountable hm) {
             return null;
         }
 
         @Override
-        public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+        public void actuate(Actuator actuator, Object value) throws Exception {
 
         }
 

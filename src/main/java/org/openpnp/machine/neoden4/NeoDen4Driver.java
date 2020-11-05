@@ -16,6 +16,9 @@ import org.openpnp.model.Configuration;
 import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
 import org.openpnp.model.Named;
+import org.openpnp.spi.Actuator;
+import org.openpnp.spi.Head;
+import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable.MoveToOption;
 import org.openpnp.spi.Nozzle;
 import org.pmw.tinylog.Logger;
@@ -337,7 +340,7 @@ public class NeoDen4Driver extends AbstractReferenceDriver implements Named {
     }
     
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
         /* Make sure *all* nozzles are up before moving */ 
         moveZ(1, 0);
         moveZ(2, 0);
@@ -371,18 +374,29 @@ public class NeoDen4Driver extends AbstractReferenceDriver implements Named {
     }
 
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
+    public Location getLocation(HeadMountable hm) {
+        Location location;
         switch (hm.getId()) {
             case "N1":
-                return new Location(units, x, y, z1, c1).add(hm.getHeadOffsets());
+                location = new Location(units, x, y, z1, c1);
+                break;
             case "N2":
-                return new Location(units, x, y, z2, c2).add(hm.getHeadOffsets());
+                location = new Location(units, x, y, z2, c2);
+                break;
             case "N3":
-                return new Location(units, x, y, z3, c3).add(hm.getHeadOffsets());
+                location = new Location(units, x, y, z3, c3);
+                break;
             case "N4":
-                return new Location(units, x, y, z4, c4).add(hm.getHeadOffsets());
+                location = new Location(units, x, y, z4, c4);
+                break;
+            default:
+                location = new Location(units, x, y, 0, 0);
+                break;
         }
-        return new Location(units, x, y, 0, 0).add(hm.getHeadOffsets());
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.add(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
+        return location;
     }
     
     private void moveXy(double x, double y) throws Exception {
@@ -489,10 +503,12 @@ public class NeoDen4Driver extends AbstractReferenceDriver implements Named {
     }
 
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption...options)
+    public void moveTo(HeadMountable hm, Location location, double speed, MoveToOption...options)
             throws Exception {
         location = location.convertToUnits(units);
-        location = location.subtract(hm.getHeadOffsets());
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.subtract(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
 
         double x = location.getX();
         double y = location.getY();
@@ -687,7 +703,7 @@ public class NeoDen4Driver extends AbstractReferenceDriver implements Named {
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, Object rawValue) throws Exception {
+    public void actuate(Actuator actuator, Object rawValue) throws Exception {
         if (rawValue instanceof Boolean) {
             boolean on = (boolean) rawValue;
             switch (actuator.getName()) {
@@ -827,7 +843,7 @@ public class NeoDen4Driver extends AbstractReferenceDriver implements Named {
     }
 
     @Override
-    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+    public Object actuatorRead(Actuator actuator, Object parameter) throws Exception {
         switch (actuator.getName()) {
             case ACT_N1_BLOW:
             case ACT_N1_VACUUM: {

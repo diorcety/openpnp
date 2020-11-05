@@ -16,17 +16,15 @@ import org.openpnp.gui.support.DoubleConverter;
 import org.openpnp.gui.support.LengthConverter;
 import org.openpnp.gui.support.MessageBoxes;
 import org.openpnp.gui.support.MutableLocationProxy;
-import org.openpnp.machine.neoden4.NeoDen4Driver;
 import org.openpnp.machine.reference.ReferenceDriver;
 import org.openpnp.machine.reference.ReferenceMachine;
-import org.openpnp.machine.reference.driver.GcodeDriver;
-import org.openpnp.machine.reference.driver.NullDriver;
 import org.openpnp.model.Configuration;
 
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
+import org.openpnp.spi.Driver;
 
 public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWizard {
 
@@ -66,10 +64,10 @@ public class ReferenceMachineConfigurationWizard extends AbstractConfigurationWi
         
         checkBoxHomeAfterEnabled = new JCheckBox("Home after enabled?");
         panelGeneral.add(checkBoxHomeAfterEnabled, "2, 6");
-        
-                comboBoxDriver.addItem(NullDriver.class.getCanonicalName());
-        comboBoxDriver.addItem(GcodeDriver.class.getCanonicalName());
-        comboBoxDriver.addItem(NeoDen4Driver.class.getCanonicalName());
+
+                for(Class<? extends Driver> driver: machine.getCompatibleDriverClasses()) {
+                    comboBoxDriver.addItem(driver.getCanonicalName());
+                }
         
                 JPanel panelLocations = new JPanel();
         panelLocations.setBorder(new TitledBorder(null, "Locations", TitledBorder.LEADING,

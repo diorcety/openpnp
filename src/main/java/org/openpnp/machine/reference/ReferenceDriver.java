@@ -21,8 +21,7 @@ package org.openpnp.machine.reference;
 
 import java.io.Closeable;
 
-import org.openpnp.model.Location;
-import org.openpnp.spi.Movable.MoveToOption;
+import org.openpnp.spi.Driver;
 import org.openpnp.spi.PropertySheetHolder;
 import org.openpnp.spi.WizardConfigurable;
 
@@ -38,66 +37,5 @@ import org.openpnp.spi.WizardConfigurable;
  * movements by one of these objects. This allows the driver to make decisions as to what axes
  * should be moved to accomplish a specific task.
  */
-public interface ReferenceDriver extends WizardConfigurable, PropertySheetHolder, Closeable {
-    /**
-     * Performing the hardware homing operation for the given Head. When this call completes the
-     * Head should be at it's 0,0,0,0 position.
-     * 
-     * @throws Exception
-     */
-    public void home(ReferenceHead head) throws Exception;    
-
-    /**
-     * Moves the specified HeadMountable to the given location at a speed defined by (maximum feed
-     * rate * speed) where speed is greater than 0 and typically less than or equal to 1. A speed of
-     * 0 means to move at the minimum possible speed.
-     * 
-     * HeadMountable object types include Nozzle, Camera and Actuator.
-     * 
-     * @param hm
-     * @param location destination
-     * @param speed relative speed (0-1) of the move
-     * @param options zero to n options from the MoveToOptions enum.
-     * @throws Exception
-     */
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption... options) throws Exception;
-
-    /**
-     * Returns a clone of the HeadMountable's current location. It's important that the returned
-     * object is a clone, since the caller may modify the returned Location.
-     * 
-     * @param hm
-     * @return
-     */
-    public Location getLocation(ReferenceHeadMountable hm);
-
-    /**
-     * Actuates a machine defined object.
-     * 
-     * @param actuator
-     * @param value
-     * @throws Exception
-     */
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception;
-
-    /**
-     * Read a value from the given Actuator.
-     * 
-     * @param actuator
-     * @return
-     * @throws Exception
-     */
-    public default Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
-        return null;
-    }
-
-    /**
-     * Attempts to enable the Driver, turning on all outputs.
-     * 
-     * @param enabled
-     * @throws Exception
-     */
-    public void setEnabled(boolean enabled) throws Exception;
-
-    public default void createDefaults() {};
+public interface ReferenceDriver extends WizardConfigurable, PropertySheetHolder, Driver, Closeable {
 }

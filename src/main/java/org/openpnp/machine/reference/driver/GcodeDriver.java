@@ -24,7 +24,6 @@ import org.openpnp.gui.support.Icons;
 import org.openpnp.gui.support.PropertySheetWizardAdapter;
 import org.openpnp.machine.reference.ReferenceActuator;
 import org.openpnp.machine.reference.ReferenceDriver;
-import org.openpnp.machine.reference.ReferenceHead;
 import org.openpnp.machine.reference.ReferenceHeadMountable;
 import org.openpnp.machine.reference.ReferenceMachine;
 import org.openpnp.machine.reference.driver.wizards.GcodeDriverConsole;
@@ -35,6 +34,7 @@ import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
 import org.openpnp.model.Named;
 import org.openpnp.model.Part;
+import org.openpnp.spi.Actuator;
 import org.openpnp.spi.Head;
 import org.openpnp.spi.HeadMountable;
 import org.openpnp.spi.Movable.MoveToOption;
@@ -290,7 +290,7 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
     }
 
     @Override
-    public void home(ReferenceHead head) throws Exception {
+    public void home(Head head) throws Exception {
         // Home is sent with an infinite timeout since it's tough to tell how long it will
         // take.
         String command = getCommand(null, CommandType.HOME_COMMAND);
@@ -464,7 +464,7 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
     }
 
     @Override
-    public Location getLocation(ReferenceHeadMountable hm) {
+    public Location getLocation(HeadMountable hm) {
         // according main driver
         Axis xAxis = getAxis(hm, Axis.Type.X);
         Axis yAxis = getAxis(hm, Axis.Type.Y);
@@ -492,13 +492,15 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
                 new Location(units, xAxis == null ? 0 : xAxis.getTransformedCoordinate(hm),
                         yAxis == null ? 0 : yAxis.getTransformedCoordinate(hm),
                         zAxis == null ? 0 : zAxis.getTransformedCoordinate(hm),
-                        rotationAxis == null ? 0 : rotationAxis.getTransformedCoordinate(hm))
-                                .add(hm.getHeadOffsets());
+                        rotationAxis == null ? 0 : rotationAxis.getTransformedCoordinate(hm));
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.add(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
         return location;
     }
 
     @Override
-    public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption...options)
+    public void moveTo(HeadMountable hm, Location location, double speed, MoveToOption...options)
             throws Exception {
         // for options make a local copy of all possibly affected variables
         double backlashOffsetX = this.backlashOffsetX;
@@ -529,7 +531,9 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
         Location locationOriginal = location;
 
         location = location.convertToUnits(units);
-        location = location.subtract(hm.getHeadOffsets());
+        if (hm instanceof ReferenceHeadMountable) {
+            location = location.subtract(((ReferenceHeadMountable)hm).getHeadOffsets());
+        }
 
         double x = location.getX();
         double y = location.getY();
@@ -816,7 +820,7 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
     }
 
     @Override
-    public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+    public void actuate(Actuator actuator, Object value) throws Exception {
         String command = null;
         if (value instanceof Boolean) {
             command = getCommand(actuator, CommandType.ACTUATE_BOOLEAN_COMMAND);
@@ -829,7 +833,9 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
         if (command != null) {
             command = substituteVariable(command, "Id", actuator.getId());
             command = substituteVariable(command, "Name", actuator.getName());
-            command = substituteVariable(command, "Index", actuator.getIndex());
+            if (actuator instanceof ReferenceActuator) {
+                command = substituteVariable(command, "Index", ((ReferenceActuator)actuator).getIndex());
+            }
             command = substituteVariable(command, value);
             sendGcode(command);
         }
@@ -840,7 +846,7 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
     }
 
     @Override
-    public Object actuatorRead(ReferenceActuator actuator, Object parameter) throws Exception {
+    public Object actuatorRead(Actuator actuator, Object parameter) throws Exception {
         /**
          * The logic here is a little complicated. This is the only driver method that is
          * not fire and forget when it comes to sub-drivers. In this case, we need to know
@@ -870,7 +876,9 @@ public class GcodeDriver extends AbstractReferenceDriver implements Named, Runna
              */
             command = substituteVariable(command, "Id", actuator.getId());
             command = substituteVariable(command, "Name", actuator.getName());
-            command = substituteVariable(command, "Index", actuator.getIndex());
+            if (actuator instanceof ReferenceActuator) {
+                command = substituteVariable(command, "Index", ((ReferenceActuator)actuator).getIndex());
+            }
             command = substituteVariable(command, parameter);
 
             List<String> responses = sendGcode(command);

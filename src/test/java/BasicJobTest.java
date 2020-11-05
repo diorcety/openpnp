@@ -19,6 +19,7 @@ import org.openpnp.model.Job;
 import org.openpnp.model.LengthUnit;
 import org.openpnp.model.Location;
 import org.openpnp.model.Placement;
+import org.openpnp.spi.Actuator;
 import org.openpnp.spi.Camera;
 import org.openpnp.spi.Head;
 import org.openpnp.spi.HeadMountable;
@@ -156,7 +157,7 @@ public class BasicJobTest {
         }
 
         @Override
-        public void moveTo(ReferenceHeadMountable hm, Location location, double speed, MoveToOption...options)
+        public void moveTo(HeadMountable hm, Location location, double speed, MoveToOption...options)
                 throws Exception {
             System.out.println(hm + " " + location);
             if (expectedOps.isEmpty()) {
@@ -178,7 +179,7 @@ public class BasicJobTest {
         }
 
         @Override
-        public void actuate(ReferenceActuator actuator, Object value) throws Exception {
+        public void actuate(Actuator actuator, Object value) throws Exception {
             if (expectedOps.isEmpty()) {
                 throw new Exception("Unexpected Actuate");
             }
