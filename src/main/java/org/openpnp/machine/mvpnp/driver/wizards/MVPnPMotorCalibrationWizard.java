@@ -207,17 +207,75 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
                             FormSpecs.RELATED_GAP_ROWSPEC,
                             FormSpecs.DEFAULT_ROWSPEC,}));
 
+            JTextField valueTf = new JTextField();
+            JSpinner motorSp = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
+
             JLabel lblModule = new JLabel("Module");
             axisParameters.add(lblModule, "2, 4, right, default");
 
             JSpinner moduleSp = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
             axisParameters.add(moduleSp, "4, 4, fill, default");
 
+            JButton btnMoveTo = new JButton(new AbstractAction("Move to") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    UiUtils.messageBoxOnException(() -> {
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
+                        byte type = TMCLType.MVP.ABS.getByte();
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.MVP.getByte(), type, motor, integerConverter.convertReverse(valueTf.getText()));
+                        driver.sendCommand(tmclRequest);
+                    });
+                }
+            });
+            axisParameters.add(btnMoveTo, "6, 4");
+
+            JButton btnStop = new JButton(new AbstractAction("Stop") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    UiUtils.messageBoxOnException(() -> {
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
+                        byte type = 0;
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.MST.getByte(), type, motor,0);
+                        driver.sendCommand(tmclRequest);
+                    });
+                }
+            });
+            axisParameters.add(btnStop, "8, 4");
+
             JLabel lbMotor = new JLabel("Motor");
             axisParameters.add(lbMotor, "2, 6, right, default");
 
-            JSpinner motorSp = new JSpinner(new SpinnerNumberModel(0, 0, 255, 1));
             axisParameters.add(motorSp, "4, 6, fill, default");
+
+            JButton btnRotateLeft = new JButton(new AbstractAction("Rotate Left") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    UiUtils.messageBoxOnException(() -> {
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
+                        byte type = 0;
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.ROL.getByte(), type, motor, integerConverter.convertReverse(valueTf.getText()));
+                        driver.sendCommand(tmclRequest);
+                    });
+                }
+            });
+            axisParameters.add(btnRotateLeft, "6, 6");
+
+            JButton btnRotateRight = new JButton(new AbstractAction("Rotate Right") {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    UiUtils.messageBoxOnException(() -> {
+                        byte module = ((Integer) moduleSp.getValue()).byteValue();
+                        byte motor = ((Integer) motorSp.getValue()).byteValue();
+                        byte type = 0;
+                        TMCLRequest tmclRequest = new TMCLRequest(module, TMCLCommand.ROR.getByte(), type, motor, integerConverter.convertReverse(valueTf.getText()));
+                        driver.sendCommand(tmclRequest);
+                    });
+                }
+            });
+            axisParameters.add(btnRotateRight, "8, 6");
 
             JLabel lblType = new JLabel("Type");
             axisParameters.add(lblType, "2, 8, right, default");
@@ -269,7 +327,6 @@ public class MVPnPMotorCalibrationWizard extends JPanel implements Wizard {
             JLabel lblValue = new JLabel("Value");
             axisParameters.add(lblValue, "2, 10, right, default");
 
-            JTextField valueTf = new JTextField();
             axisParameters.add(valueTf, "4, 10");
             valueTf.setColumns(5);
 
