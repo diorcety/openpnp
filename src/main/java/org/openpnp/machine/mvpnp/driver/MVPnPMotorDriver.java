@@ -198,7 +198,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
             return null;
         }
         MVPnPIOActuator ioActuator = (MVPnPIOActuator) actuator;
-        TMCLReply tmclReply = sendCommand(new TMCLRequest((byte)ioActuator.getModule(), TMCLCommand.SIO.getByte(), (byte)ioActuator.getPort(), (byte)ioActuator.getBank(), 0));
+        TMCLReply tmclReply = sendCommand(new TMCLRequest((byte)ioActuator.getModule(), TMCLCommand.GIO.getByte(), (byte)ioActuator.getPort(), (byte)ioActuator.getBank(), 0));
         return ioActuator.getType().getConverter().convertReverse(tmclReply.getValue());
     }
 
