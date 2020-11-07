@@ -123,7 +123,8 @@ public interface TMCLType {
         SerialBaudRate(65),
         SerialAddress(66),
         SerialHostAddress(76),
-        SerialSecondaryAddress(87);
+        SerialSecondaryAddress(87),
+        GaugePressureOffset(111);
 
         private byte id;
 
