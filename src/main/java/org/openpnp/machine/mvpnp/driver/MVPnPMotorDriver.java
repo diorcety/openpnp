@@ -27,13 +27,7 @@ import org.simpleframework.xml.ElementList;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MVPnPMotorDriver extends AbstractReferenceDriver {
 
@@ -149,7 +143,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
     public void moveTo(HeadMountable hm, Location location, double speed, Movable.MoveToOption... options) throws Exception {
         location = location.convertToUnits(units);
         if (hm instanceof ReferenceHeadMountable) {
-            location = location.subtract(((ReferenceHeadMountable)hm).getHeadOffsets());
+            location = location.subtract(((ReferenceHeadMountable) hm).getHeadOffsets());
         }
 
         Axis xAxis = getAxis(hm, Axis.Type.X);
@@ -157,10 +151,40 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
         Axis zAxis = getAxis(hm, Axis.Type.Z);
         Axis rotationAxis = getAxis(hm, Axis.Type.Rotation);
 
-        move(hm, xAxis, location.getX(), speed);
-        move(hm, yAxis, location.getY(), speed);
-        move(hm, zAxis, location.getZ(), speed);
-        move(hm, rotationAxis, location.getRotation(), speed);
+        // Trigger moves
+        List<Axis> axisList = new LinkedList<Axis>();
+        if (move(hm, xAxis, location.getX(), speed)) {
+            axisList.add(xAxis);
+        }
+        if (move(hm, yAxis, location.getY(), speed)) {
+            axisList.add(yAxis);
+        }
+        if (move(hm, zAxis, location.getZ(), speed)) {
+            axisList.add(zAxis);
+        }
+        if (move(hm, rotationAxis, location.getRotation(), speed)) {
+            axisList.add(rotationAxis);
+        }
+
+        // Wait end of moves
+        waitStandstill(axisList);
+    }
+
+    private void waitStandstill(List<Axis> axes) throws Exception {
+        List<Axis> axisList = new ArrayList<Axis>(axes);
+        Iterator<Axis> iterator = axisList.iterator();
+
+        // Loop over axes
+        while (iterator.hasNext()) {
+            Axis next = iterator.next();
+            if (positionReached(next)) {
+                iterator.remove();
+            }
+            if (!iterator.hasNext()) {
+                iterator = axisList.iterator();
+                Thread.sleep(100);
+            }
+        }
     }
 
     @Override
@@ -177,7 +201,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
                         zAxis == null ? 0 : zAxis.getTransformedCoordinate(hm),
                         rotationAxis == null ? 0 : rotationAxis.getTransformedCoordinate(hm));
         if (hm instanceof ReferenceHeadMountable) {
-            location = location.add(((ReferenceHeadMountable)hm).getHeadOffsets());
+            location = location.add(((ReferenceHeadMountable) hm).getHeadOffsets());
         }
         return location;
     }
@@ -189,7 +213,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
         }
         MVPnPIOActuator ioActuator = (MVPnPIOActuator) actuator;
         int intValue = ioActuator.getType().getConverter().convertForward(value);
-        sendCommand(new TMCLRequest((byte)ioActuator.getModule(), TMCLCommand.SIO.getByte(), (byte)ioActuator.getPort(), (byte)ioActuator.getBank(), intValue));
+        sendCommand(new TMCLRequest((byte) ioActuator.getModule(), TMCLCommand.SIO.getByte(), (byte) ioActuator.getPort(), (byte) ioActuator.getBank(), intValue));
     }
 
     @Override
@@ -198,7 +222,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
             return null;
         }
         MVPnPIOActuator ioActuator = (MVPnPIOActuator) actuator;
-        TMCLReply tmclReply = sendCommand(new TMCLRequest((byte)ioActuator.getModule(), TMCLCommand.GIO.getByte(), (byte)ioActuator.getPort(), (byte)ioActuator.getBank(), 0));
+        TMCLReply tmclReply = sendCommand(new TMCLRequest((byte) ioActuator.getModule(), TMCLCommand.GIO.getByte(), (byte) ioActuator.getPort(), (byte) ioActuator.getBank(), 0));
         return ioActuator.getType().getConverter().convertReverse(tmclReply.getValue());
     }
 
@@ -214,9 +238,9 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
         }
     }
 
-    private void move(HeadMountable hm, Axis axis, double position, double speed) throws Exception {
+    private boolean move(HeadMountable hm, Axis axis, double position, double speed) throws Exception {
         if (Double.isNaN(position)) {
-            return; // No move requested
+            return false; // No move requested
         }
         int stepPosition;
         int stepSpeed;
@@ -228,10 +252,15 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
             stepSpeed = (int) speed;
         }
         if (axis.getCoordinate() == stepPosition) {
-            return; // Already at the position
+            return false; // Already at the position
         }
         setMoveSpeed(axis, stepSpeed);
         moveTo(axis, stepPosition);
+        return true;
+    }
+
+    private boolean positionReached(Axis axis) throws Exception {
+        return sendCommand(axis, TMCLCommand.GAP, TMCLType.AP.PositionReachedFlag, 0) != 0;
     }
 
     private void moveTo(Axis axis, int position) throws Exception {
@@ -261,7 +290,7 @@ public class MVPnPMotorDriver extends AbstractReferenceDriver {
         TMCLReply tmclReply = new TMCLReply(bytes);
         Logger.debug("sendCommand({}) => {}", tmclRequest, tmclReply);
         if (tmclReply.getStatus() < TMCLStatus.NO_ERROR.getByte()) {
-            throw new IllegalStateException("Invalid reply status: " + (int)tmclReply.getStatus());
+            throw new IllegalStateException("Invalid reply status: " + (int) tmclReply.getStatus());
         }
         return tmclReply;
     }
